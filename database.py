@@ -29,38 +29,43 @@ def get_all_clientes():
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM clientes')
-        clientes = cursor.fetchall()
-        return clientes
-
-# --- NUEVAS FUNCIONES PARA EDITAR/CREAR ---
+        return cursor.fetchall()
 
 def get_cliente_por_id(cliente_id):
-    """Obtiene un cliente por su ID"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM clientes WHERE id = ?', (cliente_id,))
         cliente = cursor.fetchone()
         return dict(cliente) if cliente else None
 
+def cliente_tiene_acceso(cliente_id):
+    """
+    Devuelve True si el cliente existe y su vencimiento es hoy o futuro.
+    Una sola consulta SQL, sin traer nada a memoria.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id FROM clientes
+            WHERE id = ?
+            AND (vencimiento IS NULL OR vencimiento >= date('now'))
+        """, (cliente_id,))
+        return cursor.fetchone() is not None
+
 def crear_cliente(nombre, telefono=None, vencimiento=None):
-    """Crea un nuevo cliente en la base de datos"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
             'INSERT INTO clientes (nombre, telefono, vencimiento) VALUES (?, ?, ?)',
             (nombre, telefono, vencimiento)
         )
-        return cursor.lastrowid  # Devuelve el ID del nuevo cliente
+        return cursor.lastrowid
 
 def actualizar_cliente(cliente_id, nombre=None, telefono=None, vencimiento=None):
-    """Actualiza los datos de un cliente existente"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
-        # Construir query dinámica solo con los campos proporcionados
-        campos = []
-        valores = []
-        
+        campos, valores = [], []
+
         if nombre is not None:
             campos.append("nombre = ?")
             valores.append(nombre)
@@ -70,57 +75,45 @@ def actualizar_cliente(cliente_id, nombre=None, telefono=None, vencimiento=None)
         if vencimiento is not None:
             campos.append("vencimiento = ?")
             valores.append(vencimiento)
-        
-        if campos:  # Solo actualizar si hay campos para cambiar
+
+        if campos:
             valores.append(cliente_id)
-            query = f"UPDATE clientes SET {', '.join(campos)} WHERE id = ?"
-            cursor.execute(query, valores)
+            cursor.execute(
+                f"UPDATE clientes SET {', '.join(campos)} WHERE id = ?",
+                valores
+            )
             return True
         return False
 
 def eliminar_cliente(cliente_id):
-    """Elimina un cliente por su ID"""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute('DELETE FROM clientes WHERE id = ?', (cliente_id,))
-        return cursor.rowcount > 0  # True si se eliminó, False si no
+        return cursor.rowcount > 0
 
 def obtener_vencimientos_proximos(dias=7):
-    """Obtiene clientes cuyo vencimiento está próximo (en los próximos X días)"""
+    """Clientes cuyo vencimiento cae entre hoy y los próximos X días."""
+    limite = (datetime.now().date() + timedelta(days=dias)).isoformat()
+    hoy = datetime.now().date().isoformat()
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clientes WHERE vencimiento IS NOT NULL')
-        todos = cursor.fetchall()
-        
-        # Filtrar por fecha (esto sería más eficiente en SQL, pero por simplicidad)
-        hoy = datetime.now().date()
-        limite = hoy + timedelta(days=dias)
-        
-        proximos = []
-        for cliente in todos:
-            if cliente['vencimiento']:
-                try:
-                    fecha_venc = datetime.strptime(cliente['vencimiento'], '%Y-%m-%d').date()
-                    if hoy <= fecha_venc <= limite:
-                        proximos.append(dict(cliente))
-                except ValueError:
-                    continue
-        return proximos
+        cursor.execute("""
+            SELECT * FROM clientes
+            WHERE vencimiento IS NOT NULL
+            AND vencimiento BETWEEN ? AND ?
+            ORDER BY vencimiento ASC
+        """, (hoy, limite))
+        return [dict(row) for row in cursor.fetchall()]
 
 def obtener_clientes_vencidos():
-    """Obtiene clientes cuya fecha de vencimiento ya pasó"""
+    """Clientes cuyo vencimiento ya pasó."""
+    hoy = datetime.now().date().isoformat()
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clientes WHERE vencimiento IS NOT NULL')
-        todos = cursor.fetchall()
-        
-        hoy = datetime.now().date()
-        vencidos = []
-        for cliente in todos:
-            try:
-                fecha_venc = datetime.strptime(cliente['vencimiento'], '%Y-%m-%d').date()
-                if fecha_venc < hoy:
-                    vencidos.append(dict(cliente))
-            except ValueError:
-                continue
-        return vencidos
+        cursor.execute("""
+            SELECT * FROM clientes
+            WHERE vencimiento IS NOT NULL
+            AND vencimiento < ?
+            ORDER BY vencimiento DESC
+        """, (hoy,))
+        return [dict(row) for row in cursor.fetchall()]

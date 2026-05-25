@@ -3,7 +3,7 @@ acceso.py — Punto de entrada del sistema de control de acceso.
 
 Orquesta los módulos:
   - scanner.py    → captura y decodifica códigos QR
-  - cerradura.py  → controla la cerradura via Arduino/serial
+  - cerradura.py  → controla la cerradura via GPIO o serial
   - database.py   → consultas a la base de datos gym.db
 """
 
@@ -13,11 +13,11 @@ import cv2
 
 from scanner import ScannerQR
 from cerradura import ControlCerradura
-from database import get_cliente_por_id, obtener_clientes_vencidos
+from database import get_cliente_por_id, cliente_tiene_acceso
 
 # ========== CONFIGURACIÓN ==========
 SERIAL_PORT = "COM3"
-DEBOUNCE_SEGUNDOS = 2   # Tiempo mínimo entre dos escaneos del mismo QR
+DEBOUNCE_SEGUNDOS = 2
 
 
 # ========== LÓGICA DE ACCESO ==========
@@ -25,15 +25,13 @@ DEBOUNCE_SEGUNDOS = 2   # Tiempo mínimo entre dos escaneos del mismo QR
 def extraer_cliente_id(codigo_qr):
     """
     Extrae el ID del cliente del contenido del QR.
-    Soporta el formato: 'Cliente ID: 5\\nNombre: Juan'
+    Soporta el formato: 'Cliente ID: 5\nNombre: Juan'
     También acepta QRs que contengan solo un número.
-    Devuelve el ID como entero, o None si no pudo extraerlo.
     """
     match = re.search(r'ID[:\s]*(\d+)', codigo_qr, re.IGNORECASE)
     if match:
         return int(match.group(1))
 
-    # Fallback: si el QR es solo un número
     numeros = re.findall(r'\d+', codigo_qr)
     if numeros:
         return int(numeros[0])
@@ -43,7 +41,7 @@ def extraer_cliente_id(codigo_qr):
 
 def verificar_acceso(cliente_id):
     """
-    Consulta la base de datos y determina si el cliente puede entrar.
+    Verifica si el cliente puede entrar con una sola consulta SQL.
     Devuelve (permitido: bool, mensaje: str).
     """
     cliente = get_cliente_por_id(cliente_id)
@@ -53,10 +51,7 @@ def verificar_acceso(cliente_id):
     nombre = cliente['nombre']
     vencimiento = cliente.get('vencimiento') or 'Sin fecha'
 
-    vencidos = obtener_clientes_vencidos()
-    ids_vencidos = {c['id'] for c in vencidos}
-
-    if cliente_id in ids_vencidos:
+    if not cliente_tiene_acceso(cliente_id):
         return False, f"ACCESO DENEGADO — {nombre} (vencido: {vencimiento})"
 
     return True, f"ACCESO PERMITIDO — {nombre} (vence: {vencimiento})"
@@ -66,7 +61,7 @@ def procesar_qr(codigo_qr, cerradura):
     """
     Procesa un código QR escaneado:
       1. Extrae el ID del cliente
-      2. Verifica si tiene acceso
+      2. Verifica acceso con una consulta directa a la BD
       3. Abre la cerradura si corresponde
     """
     cliente_id = extraer_cliente_id(codigo_qr)
@@ -111,7 +106,6 @@ def main():
         while True:
             codigo = scanner.escanear()
 
-            # Controlar teclas
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 break
@@ -121,11 +115,8 @@ def main():
 
             if codigo:
                 ahora = time.time()
-                mismo_qr = (codigo == ultimo_codigo)
-                dentro_del_debounce = (ahora - ultimo_tiempo < DEBOUNCE_SEGUNDOS)
-
-                if mismo_qr and dentro_del_debounce:
-                    continue  # Ignorar lectura duplicada
+                if codigo == ultimo_codigo and ahora - ultimo_tiempo < DEBOUNCE_SEGUNDOS:
+                    continue
 
                 ultimo_codigo = codigo
                 ultimo_tiempo = ahora
