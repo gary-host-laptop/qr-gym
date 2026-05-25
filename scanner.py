@@ -12,7 +12,7 @@ class ScannerQR:
 
     def iniciar(self):
         """Abre la cámara y la configura."""
-        self.cam = cv2.VideoCapture(self.cam_index, cv2.CAP_DSHOW)
+        self.cam = cv2.VideoCapture(self.cam_index)
         ancho, alto = self.resolucion
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, ancho)
         self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, alto)
