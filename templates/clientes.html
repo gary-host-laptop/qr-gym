@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Clientes</title>
+<style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .vencido { background-color: #ffcccc; }  /* Rojo para vencidos */
+    .proximo { background-color: #ffffcc; }  /* Amarillo para próximos */
+    .acciones a { margin-right: 10px; }
+    .qr-btn { background-color: #28a745; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; }
+</style>
+</head>
+<body>
+    <h1>Clientes del Gimnasio</h1>
+    
+    <a href="{{ url_for('nuevo_cliente') }}">➕ Nuevo Cliente</a>
+    <a href="{{ url_for('mostrar_vencimientos') }}">📅 Ver Vencimientos Próximos</a>
+    <a href="{{ url_for('mostrar_vencidos') }}">🔴 Ver Vencidos</a>
+    <br><br>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Vencimiento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr class="{% if cliente.id in ids_vencidos %}vencido{% elif cliente.id in ids_proximos %}proximo{% endif %}">
+    <td>{{ cliente.id }}</td>
+    <td>{{ cliente.nombre }}</td>
+    <td>{{ cliente.telefono or '-' }}</td>
+    <td>{{ cliente.vencimiento or 'Sin fecha' }}</td>
+    <td class="acciones">
+                    <a href="{{ url_for('editar_cliente', cliente_id=cliente.id) }}">✏️ Editar</a>
+                    <a href="{{ url_for('actualizar_vencimiento', cliente_id=cliente.id) }}">📅 Cambiar Vencimiento</a>
+                    <!-- BOTÓN QR QUE TE PEDÍ -->
+                    <a href="{{ url_for('descargar_qr', cliente_id=cliente.id) }}" class="qr-btn">⬇️ QR</a>
+                    <form method="POST" action="{{ url_for('eliminar_cliente_route', cliente_id=cliente.id) }}" style="display: inline;">
+                        <button type="submit" onclick="return confirm('¿Eliminar este cliente?')">🗑️ Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

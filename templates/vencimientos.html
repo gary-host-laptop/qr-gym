@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vencimientos Próximos</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .dias-pocos {
+            background-color: #ffcccc; /* rojo claro para pocos días */
+        }
+        .dias-muchos {
+            background-color: #ffffcc; /* amarillo claro para más días */
+        }
+    </style>
+</head>
+<body>
+    <h1>Clientes con vencimientos próximos (próximos 30 días)</h1>
+    
+    <a href="{{ url_for('listar_clientes_html') }}">⬅️ Volver a la lista completa</a>
+    
+    <br><br>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Vencimiento</th>
+                <th>Días restantes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr class="{% if cliente.dias_restantes < 7 %}dias-pocos{% else %}dias-muchos{% endif %}">
+                <td>{{ cliente.id }}</td>
+                <td>{{ cliente.nombre }}</td>
+                <td>{{ cliente.telefono or '-' }}</td>
+                <td>{{ cliente.vencimiento }}</td>
+                <td>{{ cliente.dias_restantes }} días</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No hay clientes con vencimientos próximos.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,43 @@
+// Arduino: cerradura_gimnasio.ino
+const int PIN_RELE = 8;  // Pin conectado al relé
+const int LED_TEST = 13; // LED interno
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(PIN_RELE, OUTPUT);
+  pinMode(LED_TEST, OUTPUT);
+  digitalWrite(PIN_RELE, LOW);  // Cerrado inicialmente
+  
+  Serial.println("Arduino Cerradura Gym - Listo");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    char comando = Serial.read();
+    
+    switch(comando) {
+      case 'A':  // ABRIR
+        digitalWrite(PIN_RELE, HIGH);
+        digitalWrite(LED_TEST, HIGH);
+        Serial.println("CERRADURA: ABIERTA");
+        delay(3000);  // Mantener abierto 3 segundos
+        digitalWrite(PIN_RELE, LOW);
+        digitalWrite(LED_TEST, LOW);
+        Serial.println("CERRADURA: CERRADA");
+        break;
+        
+      case 'C':  // CERRAR (redundante, por si acaso)
+        digitalWrite(PIN_RELE, LOW);
+        digitalWrite(LED_TEST, LOW);
+        Serial.println("CERRADURA: CERRADA");
+        break;
+        
+      case 'P':  // PING de prueba
+        Serial.println("OK");
+        digitalWrite(LED_TEST, HIGH);
+        delay(100);
+        digitalWrite(LED_TEST, LOW);
+        break;
+    }
+  }
+}
