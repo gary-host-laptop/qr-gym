@@ -207,11 +207,6 @@
                                 ><i class="ti ti-edit"></i>Editar</a
                             >
                             <a
-                                href="{{ url_for('actualizar_vencimiento', cliente_id=cliente.id) }}"
-                                class="acc-btn"
-                                ><i class="ti ti-calendar"></i>Vencimiento</a
-                            >
-                            <a
                                 href="{{ url_for('descargar_qr', cliente_id=cliente.id) }}"
                                 class="acc-btn"
                                 ><i class="ti ti-qrcode"></i>QR</a
@@ -240,4 +235,50 @@
             </table>
         </main>
     </body>
+    <script>
+        document.querySelectorAll("thead th").forEach((th, col) => {
+            if (th.textContent.trim() === "Acciones") return;
+            th.style.cursor = "pointer";
+            th.style.userSelect = "none";
+            let asc = true;
+
+            th.addEventListener("click", () => {
+                const tbody = document.querySelector("tbody");
+                const filas = Array.from(tbody.querySelectorAll("tr"));
+
+                filas.sort((a, b) => {
+                    const aVal = a
+                        .querySelectorAll("td")
+                        [col].textContent.trim();
+                    const bVal = b
+                        .querySelectorAll("td")
+                        [col].textContent.trim();
+
+                    const aFecha = Date.parse(aVal);
+                    const bFecha = Date.parse(bVal);
+                    if (!isNaN(aFecha) && !isNaN(bFecha)) {
+                        return asc ? aFecha - bFecha : bFecha - aFecha;
+                    }
+
+                    const aNum = parseFloat(aVal.replace(/\D/g, ""));
+                    const bNum = parseFloat(bVal.replace(/\D/g, ""));
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        return asc ? aNum - bNum : bNum - aNum;
+                    }
+
+                    return asc
+                        ? aVal.localeCompare(bVal, "es")
+                        : bVal.localeCompare(aVal, "es");
+                });
+
+                filas.forEach((f) => tbody.appendChild(f));
+
+                document.querySelectorAll("thead th").forEach((t) => {
+                    t.textContent = t.textContent.replace(/ [▲▼]$/, "");
+                });
+                th.textContent += asc ? " ▲" : " ▼";
+                asc = !asc;
+            });
+        });
+    </script>
 </html>

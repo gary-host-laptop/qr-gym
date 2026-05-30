@@ -1,8 +1,19 @@
-from datetime import datetime
-import io
 import csv
-from flask import Flask, flash, make_response, redirect, render_template, request, send_file, url_for
+import io
+from datetime import datetime
+from io import BytesIO
+
 import qrcode
+from flask import (
+    Flask,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 
 from database import (
     actualizar_cliente,
@@ -180,47 +191,23 @@ def descargar_qr(cliente_id):
     )
 
 
-# Ruta para actualizar solo la fecha de vencimiento (más simple)
-@app.route("/actualizar_vencimiento/<int:cliente_id>", methods=["GET", "POST"])
-def actualizar_vencimiento(cliente_id):
-    """Actualiza solo la fecha de vencimiento de un cliente"""
-
-    cliente = get_cliente_por_id(cliente_id)
-    if not cliente:
-        flash("Cliente no encontrado", "error")
-        return redirect(url_for("listar_clientes_html"))
-
-    if request.method == "GET":
-        return render_template("actualizar_vencimiento.html", cliente=cliente)
-
-    elif request.method == "POST":
-        nueva_fecha = request.form.get("vencimiento")
-
-        if actualizar_cliente(
-            cliente_id, vencimiento=nueva_fecha if nueva_fecha else None
-        ):
-            flash("Fecha de vencimiento actualizada", "success")
-        else:
-            flash("Error al actualizar la fecha", "error")
-
-        return redirect(url_for("listar_clientes_html"))
-
 @app.route("/exportar_csv")
 def exportar_csv():
     import csv
     import io
-    
+
     clientes = get_all_clientes()
     buffer = io.StringIO()
     writer = csv.writer(buffer)
     writer.writerow(["id", "nombre", "telefono", "vencimiento"])
     for c in clientes:
         writer.writerow([c["id"], c["nombre"], c["telefono"], c["vencimiento"]])
-    
-    response = make_response(buffer.getvalue().encode('utf-8'))
+
+    response = make_response(buffer.getvalue().encode("utf-8"))
     response.headers["Content-Disposition"] = "attachment; filename=clientes.csv"
     response.headers["Content-Type"] = "text/csv; charset=utf-8"
     return response
+
 
 @app.route("/vencidos")
 def mostrar_vencidos():
