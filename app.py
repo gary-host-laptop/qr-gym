@@ -26,6 +26,8 @@ from database import (
     init_db,
     obtener_clientes_vencidos,
     obtener_vencimientos_proximos,
+    registrar_evento,
+    obtener_historial,
 )
 
 # ========== CONFIGURACIÓN DE LOGIN ==========
@@ -88,9 +90,21 @@ def login():
 
         if usuario == USUARIO and contraseña == CONTRASEÑA:
             session["logueado"] = True
+            registrar_evento(
+                tipo="SISTEMA",
+                descripcion=f"Inicio de sesión exitoso — usuario: {usuario}",
+                resultado="EXITO",
+                usuario_admin=usuario,
+            )
             flash("¡Bienvenido!", "success")
             return redirect(url_for("listar_clientes_html"))
         else:
+            registrar_evento(
+                tipo="SISTEMA",
+                descripcion=f"Intento de login fallido — usuario: {usuario}",
+                resultado="DENEGADO",
+                usuario_admin=usuario,
+            )
             flash("Usuario o contraseña incorrectos", "error")
 
     return render_template("login.html")
@@ -99,6 +113,13 @@ def login():
 @app.route("/logout")
 def logout():
     """Cierra la sesión"""
+    if "logueado" in session:
+        registrar_evento(
+            tipo="SISTEMA",
+            descripcion="Cierre de sesión",
+            resultado="EXITO",
+            usuario_admin="admin",
+        )
     session.clear()
     flash("Sesión cerrada", "success")
     return redirect(url_for("login"))
@@ -162,6 +183,13 @@ def editar_cliente(cliente_id):
             vencimiento=vencimiento if vencimiento else None,
         )
 
+        registrar_evento(
+            tipo="SISTEMA",
+            descripcion=f"Cliente editado — ID {cliente_id}: {nombre}",
+            resultado="EXITO",
+            cliente_id=cliente_id,
+            usuario_admin="admin",
+        )
         flash("Cliente actualizado correctamente", "success")
         return redirect(url_for("listar_clientes_html"))
 
@@ -193,6 +221,13 @@ def nuevo_cliente():
             vencimiento=vencimiento if vencimiento else None,
         )
 
+        registrar_evento(
+            tipo="SISTEMA",
+            descripcion=f"Nuevo cliente creado — ID {nuevo_id}: {nombre}",
+            resultado="EXITO",
+            cliente_id=nuevo_id,
+            usuario_admin="admin",
+        )
         flash(f"Cliente creado correctamente con ID: {nuevo_id}", "success")
         return redirect(url_for("listar_clientes_html"))
 
@@ -201,9 +236,26 @@ def nuevo_cliente():
 @requiere_login
 def eliminar_cliente_route(cliente_id):
     """Elimina un cliente (solo POST para seguridad)"""
+    cliente = get_cliente_por_id(cliente_id)
+    nombre = cliente["nombre"] if cliente else "desconocido"
+
     if eliminar_cliente(cliente_id):
+        registrar_evento(
+            tipo="SISTEMA",
+            descripcion=f"Cliente eliminado — ID {cliente_id}: {nombre}",
+            resultado="EXITO",
+            cliente_id=cliente_id,
+            usuario_admin="admin",
+        )
         flash("Cliente eliminado correctamente", "success")
     else:
+        registrar_evento(
+            tipo="SISTEMA",
+            descripcion=f"Intento fallido de eliminar cliente ID {cliente_id}",
+            resultado="ERROR",
+            cliente_id=cliente_id,
+            usuario_admin="admin",
+        )
         flash("No se pudo eliminar el cliente", "error")
 
     return redirect(url_for("listar_clientes_html"))
@@ -277,6 +329,14 @@ def mostrar_vencidos():
             cliente["dias_pasados"] = dias_pasados
 
     return render_template("vencidos.html", clientes=vencidos)
+
+
+@app.route("/actividad")
+@requiere_login
+def mostrar_actividad():
+    """Muestra el historial de eventos del sistema"""
+    logs = obtener_historial(limite=200)
+    return render_template("actividad.html", logs=logs)
 
 
 if __name__ == "__main__":

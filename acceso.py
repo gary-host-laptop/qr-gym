@@ -13,7 +13,7 @@ import cv2
 
 from scanner import ScannerQR
 from cerradura import ControlCerradura
-from database import get_cliente_por_id, cliente_tiene_acceso
+from database import get_cliente_por_id, cliente_tiene_acceso, registrar_evento
 
 # ========== CONFIGURACIÓN ==========
 SERIAL_PORT = "COM3"
@@ -62,15 +62,28 @@ def procesar_qr(codigo_qr, cerradura):
     Procesa un código QR escaneado:
       1. Extrae el ID del cliente
       2. Verifica acceso con una consulta directa a la BD
-      3. Abre la cerradura si corresponde
+      3. Registra el evento en la tabla logs
+      4. Abre la cerradura si corresponde
     """
     cliente_id = extraer_cliente_id(codigo_qr)
     if cliente_id is None:
         print("❌ Formato QR inválido")
+        registrar_evento(
+            tipo="ACCESO",
+            descripcion=f"QR inválido: {codigo_qr[:60]}",
+            resultado="ERROR",
+        )
         return
 
     permitido, mensaje = verificar_acceso(cliente_id)
     print(f"{'✅' if permitido else '⛔'} {mensaje}")
+
+    registrar_evento(
+        tipo="ACCESO",
+        descripcion=mensaje,
+        resultado="EXITO" if permitido else "DENEGADO",
+        cliente_id=cliente_id,
+    )
 
     if permitido:
         if cerradura.abrir_cerradura():
