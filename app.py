@@ -28,7 +28,6 @@ from database import (
     obtener_vencimientos_proximos,
 )
 
-
 # ========== CONFIGURACIÓN DE LOGIN ==========
 USUARIO = "admin"
 CONTRASEÑA = "1234"
@@ -38,10 +37,11 @@ CONTRASEÑA = "1234"
 def requiere_login(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'logueado' not in session:
+        if "logueado" not in session:
             flash("Debes iniciar sesión", "error")
             return redirect(url_for("login"))
         return f(*args, **kwargs)
+
     return decorated_function
 
 
@@ -78,20 +78,21 @@ with app.app_context():
 
 # ========== RUTAS DE AUTENTICACIÓN ==========
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Página de login"""
     if request.method == "POST":
         usuario = request.form.get("usuario")
         contraseña = request.form.get("contraseña")
-        
+
         if usuario == USUARIO and contraseña == CONTRASEÑA:
-            session['logueado'] = True
+            session["logueado"] = True
             flash("¡Bienvenido!", "success")
             return redirect(url_for("listar_clientes_html"))
         else:
             flash("Usuario o contraseña incorrectos", "error")
-    
+
     return render_template("login.html")
 
 
@@ -104,6 +105,7 @@ def logout():
 
 
 # ========== RUTAS PROTEGIDAS ==========
+
 
 @app.route("/")
 @requiere_login
@@ -242,32 +244,6 @@ def descargar_qr(cliente_id):
         as_attachment=True,
         download_name=f"cliente_{cliente_id}_{cliente['nombre']}.png",
     )
-
-
-@app.route("/actualizar_vencimiento/<int:cliente_id>", methods=["GET", "POST"])
-@requiere_login
-def actualizar_vencimiento(cliente_id):
-    """Actualiza solo la fecha de vencimiento de un cliente"""
-
-    cliente = get_cliente_por_id(cliente_id)
-    if not cliente:
-        flash("Cliente no encontrado", "error")
-        return redirect(url_for("listar_clientes_html"))
-
-    if request.method == "GET":
-        return render_template("actualizar_vencimiento.html", cliente=cliente)
-
-    elif request.method == "POST":
-        nueva_fecha = request.form.get("vencimiento")
-
-        if actualizar_cliente(
-            cliente_id, vencimiento=nueva_fecha if nueva_fecha else None
-        ):
-            flash("Fecha de vencimiento actualizada", "success")
-        else:
-            flash("Error al actualizar la fecha", "error")
-
-        return redirect(url_for("listar_clientes_html"))
 
 
 @app.route("/exportar_csv")
