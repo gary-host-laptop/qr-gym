@@ -1,299 +1,144 @@
 <!doctype html>
 <html>
-    <head>
-        <title>Lista de Clientes</title>
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
-        />
-        <style>
-            :root {
-                --white: #fdfcfbff;
-                --bright-snow: #fcf9f6ff;
-                --prussian-blue: #071f35ff;
-                --linen: #f7eee4ff;
-                --dusk-blue: #195083ff;
-                --dusk-blue-dark: #0f3a60;
-            }
-            body {
-                margin: 0;
-                background: var(--white);
-                font-family: sans-serif;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 14px;
-            }
-            thead tr {
-                background: var(--prussian-blue);
-            }
-            thead th {
-                padding: 10px 14px;
-                text-align: left;
-                color: var(--linen);
-                font-weight: 500;
-                font-size: 13px;
-                white-space: nowrap;
-            }
-            tbody tr {
-                border-bottom: 1px solid var(--linen);
-                background: var(--white);
-            }
-            tbody tr:nth-child(even) {
-                background: var(--bright-snow);
-            }
-            tbody tr:hover {
-                background: var(--linen);
-            }
-            tbody td {
-                padding: 10px 14px;
-                color: var(--prussian-blue);
-                vertical-align: middle;
-            }
-            .vencido td {
-                background: #fde8e8 !important;
-            }
-            .proximo td {
-                background: #fef9e7 !important;
-            }
-            .acciones {
-                display: flex;
-                gap: 6px;
-                flex-wrap: wrap;
-            }
-            .acc-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 4px 10px;
-                border: none;
-                border-radius: 6px;
-                background: var(--dusk-blue);
-                color: var(--white);
-                font-size: 12px;
-                text-decoration: none;
-                cursor: pointer;
-            }
-            .acc-btn i {
-                font-size: 14px;
-            }
-            .acc-btn:hover {
-                background: var(--dusk-blue-dark);
-            }
-            .acc-btn.danger {
-                background: #a32d2d;
-            }
-            .acc-btn.danger:hover {
-                background: #7a1f1f;
-            }
-            .nav-btn {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                padding: 8px 16px;
-                background: var(--dusk-blue);
-                color: var(--white);
-                text-decoration: none;
-                font-size: 14px;
-                white-space: nowrap;
-                border: none;
-                cursor: pointer;
-                border-radius: 6px;
-                transition: all 0.3s ease;
-            }
-            .nav-btn i {
-                font-size: 16px;
-            }
-            .nav-btn:hover {
-                background: var(--dusk-blue-dark);
-            }
-            .nav-btn.logout {
-                background: #a32d2d;
-                margin-left: auto;
-            }
-            .nav-btn.logout:hover {
-                background: #7a1f1f;
-            }
-        </style>
-    </head>
-    <body>
-        <header
-            style="
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1rem 1.5rem;
-                background: var(--prussian-blue);
-                box-shadow: 0 2px 8px rgba(7, 31, 53, 0.15);
-            "
-        >
-            <span
-                style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    font-size: 20px;
-                    font-weight: 500;
-                    color: var(--white);
-                "
-            >
-                <i
-                    class="ti ti-qrcode"
-                    style="font-size: 28px; color: var(--linen)"
-                ></i
-                >QR-GYM
-            </span>
-            <div style="display: flex; gap: 8px; align-items: center">
-                <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn">
-                    <i class="ti ti-calendar-event"></i>Vencimientos
-                </a>
-                <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn">
-                    <i class="ti ti-history"></i>Actividad
-                </a>
-                <a href="{{ url_for('logout') }}" class="nav-btn logout">
-                    <i class="ti ti-logout"></i>Salir
-                </a>
-            </div>
-        </header>
+<head>
+    <title>Clientes — QR-GYM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+    <style>
+        :root {
+            --white: #fdfcfbff;
+            --bright-snow: #fcf9f6ff;
+            --prussian-blue: #071f35ff;
+            --linen: #f7eee4ff;
+            --dusk-blue: #195083ff;
+            --dusk-blue-dark: #0f3a60;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--linen); font-family: sans-serif; }
+        .nav-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 16px; background: var(--dusk-blue); color: var(--white);
+            text-decoration: none; font-size: 14px; white-space: nowrap;
+            border: none; cursor: pointer; border-radius: 6px; transition: background 0.2s;
+        }
+        .nav-btn i { font-size: 16px; }
+        .nav-btn:hover { background: var(--dusk-blue-dark); }
+        .nav-btn.logout { background: #a32d2d; }
+        .nav-btn.logout:hover { background: #7a1f1f; }
+        main { padding: 0.75rem 1.5rem 2rem; }
+        .subheader {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; background: var(--bright-snow);
+            border-bottom: 1px solid var(--linen);
+        }
+        .subheader h2 { margin: 0; font-size: 22px; font-weight: 500; color: var(--prussian-blue); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--white); }
+        thead tr { background: var(--prussian-blue); }
+        thead th { padding: 10px 14px; text-align: left; color: var(--linen); font-weight: 500; font-size: 13px; white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--linen); background: var(--white); }
+        tbody tr:nth-child(even) { background: var(--bright-snow); }
+        tbody tr:hover { background: var(--linen); }
+        tbody td { padding: 10px 14px; color: var(--prussian-blue); vertical-align: middle; }
+        .vencido td { background: #fde8e8 !important; }
+        .proximo td { background: #fef9e7 !important; }
+        .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
+        .acc-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border: none; border-radius: 6px;
+            background: var(--dusk-blue); color: var(--white);
+            font-size: 12px; text-decoration: none; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .acc-btn i { font-size: 14px; }
+        .acc-btn:hover { background: var(--dusk-blue-dark); }
+        .acc-btn.danger { background: #a32d2d; }
+        .acc-btn.danger:hover { background: #7a1f1f; }
+    </style>
+</head>
+<body>
+    <header style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background:var(--prussian-blue); box-shadow:0 2px 8px rgba(7,31,53,0.15);">
+        <span style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white);">
+            <i class="ti ti-qrcode" style="font-size:28px; color:var(--linen);"></i>QR-GYM
+        </span>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn"><i class="ti ti-users"></i>Clientes</a>
+            <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn"><i class="ti ti-history"></i>Actividad</a>
+            <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn"><i class="ti ti-calendar-event"></i>Vencimientos</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout"><i class="ti ti-logout"></i>Salir</a>
+        </div>
+    </header>
 
-        <main style="margin-top: 0.75rem; padding: 0 1.5rem">
-            <div
-                style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 1rem 1.5rem;
-                    background: var(--bright-snow);
-                    border-bottom: 1px solid var(--linen);
-                "
-            >
-                <h2
-                    style="
-                        margin: 0;
-                        font-size: 22px;
-                        font-weight: 500;
-                        color: var(--prussian-blue);
-                    "
-                >
-                    Clientes del gimnasio
-                </h2>
-                <div style="display: flex; gap: 8px">
-                    <a
-                        href="{{ url_for('exportar_csv') }}"
-                        class="nav-btn"
-                        style="font-size: 15px; padding: 10px 20px"
-                    >
-                        <i class="ti ti-download"></i>Exportar CSV
-                    </a>
-                    <a
-                        href="{{ url_for('nuevo_cliente') }}"
-                        class="nav-btn"
-                        style="font-size: 15px; padding: 10px 20px"
-                    >
-                        <i class="ti ti-user-plus"></i>Nuevo cliente
-                    </a>
-                </div>
-            </div>
+    <div class="subheader">
+        <h2>Clientes del gimnasio</h2>
+        <div style="display:flex; gap:8px;">
+            <a href="{{ url_for('exportar_csv') }}" class="nav-btn" style="font-size:15px; padding:10px 20px;">
+                <i class="ti ti-download"></i>Exportar CSV
+            </a>
+            <a href="{{ url_for('nuevo_cliente') }}" class="nav-btn" style="font-size:15px; padding:10px 20px;">
+                <i class="ti ti-user-plus"></i>Nuevo cliente
+            </a>
+        </div>
+    </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Vencimiento</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cliente in clientes %}
-                    <tr
-                        class="{% if cliente.id in ids_vencidos %}vencido{% elif cliente.id in ids_proximos %}proximo{% endif %}"
-                    >
-                        <td>{{ cliente.id }}</td>
-                        <td>{{ cliente.nombre }}</td>
-                        <td>{{ cliente.telefono or '-' }}</td>
-                        <td>{{ cliente.vencimiento or 'Sin fecha' }}</td>
-                        <td class="acciones">
-                            <a
-                                href="{{ url_for('editar_cliente', cliente_id=cliente.id) }}"
-                                class="acc-btn"
-                                ><i class="ti ti-edit"></i>Editar</a
-                            >
-                            <a
-                                href="{{ url_for('descargar_qr', cliente_id=cliente.id) }}"
-                                class="acc-btn"
-                                ><i class="ti ti-qrcode"></i>QR</a
-                            >
-                            <form
-                                method="POST"
-                                action="{{ url_for('eliminar_cliente_route', cliente_id=cliente.id) }}"
-                                style="display: inline"
-                            >
-                                <button
-                                    type="submit"
-                                    class="acc-btn danger"
-                                    onclick="
-                                        return confirm(
-                                            '¿Eliminar este cliente?',
-                                        );
-                                    "
-                                >
-                                    <i class="ti ti-trash"></i>Eliminar
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </main>
-    </body>
-    <script>
-        document.querySelectorAll("thead th").forEach((th, col) => {
-            if (th.textContent.trim() === "Acciones") return;
-            th.style.cursor = "pointer";
-            th.style.userSelect = "none";
-            let asc = true;
-
-            th.addEventListener("click", () => {
-                const tbody = document.querySelector("tbody");
-                const filas = Array.from(tbody.querySelectorAll("tr"));
-
-                filas.sort((a, b) => {
-                    const aVal = a
-                        .querySelectorAll("td")
-                        [col].textContent.trim();
-                    const bVal = b
-                        .querySelectorAll("td")
-                        [col].textContent.trim();
-
-                    const aFecha = Date.parse(aVal);
-                    const bFecha = Date.parse(bVal);
-                    if (!isNaN(aFecha) && !isNaN(bFecha)) {
-                        return asc ? aFecha - bFecha : bFecha - aFecha;
-                    }
-
-                    const aNum = parseFloat(aVal.replace(/\D/g, ""));
-                    const bNum = parseFloat(bVal.replace(/\D/g, ""));
-                    if (!isNaN(aNum) && !isNaN(bNum)) {
-                        return asc ? aNum - bNum : bNum - aNum;
-                    }
-
-                    return asc
-                        ? aVal.localeCompare(bVal, "es")
-                        : bVal.localeCompare(aVal, "es");
-                });
-
-                filas.forEach((f) => tbody.appendChild(f));
-
-                document.querySelectorAll("thead th").forEach((t) => {
-                    t.textContent = t.textContent.replace(/ [▲▼]$/, "");
-                });
-                th.textContent += asc ? " ▲" : " ▼";
-                asc = !asc;
+    <main>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Vencimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr class="{% if cliente.id in ids_vencidos %}vencido{% elif cliente.id in ids_proximos %}proximo{% endif %}">
+                    <td>{{ cliente.id }}</td>
+                    <td>{{ cliente.nombre }}</td>
+                    <td>{{ cliente.apellido or '-' }}</td>
+                    <td>{{ cliente.telefono or '-' }}</td>
+                    <td>{{ cliente.vencimiento or 'Sin fecha' }}</td>
+                    <td class="acciones">
+                        <a href="{{ url_for('editar_cliente', cliente_id=cliente.id) }}" class="acc-btn"><i class="ti ti-edit"></i>Editar</a>
+                        <a href="{{ url_for('descargar_qr', cliente_id=cliente.id) }}" class="acc-btn"><i class="ti ti-qrcode"></i>QR</a>
+                        <form method="POST" action="{{ url_for('eliminar_cliente_route', cliente_id=cliente.id) }}" style="display:inline;">
+                            <button type="submit" class="acc-btn danger" onclick="return confirm('¿Eliminar este cliente?')">
+                                <i class="ti ti-trash"></i>Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</body>
+<script>
+    document.querySelectorAll("thead th").forEach((th, col) => {
+        if (th.textContent.trim() === "Acciones") return;
+        th.style.cursor = "pointer";
+        th.style.userSelect = "none";
+        let asc = true;
+        th.addEventListener("click", () => {
+            const tbody = document.querySelector("tbody");
+            const filas = Array.from(tbody.querySelectorAll("tr"));
+            filas.sort((a, b) => {
+                const aVal = a.querySelectorAll("td")[col].textContent.trim();
+                const bVal = b.querySelectorAll("td")[col].textContent.trim();
+                const aFecha = Date.parse(aVal);
+                const bFecha = Date.parse(bVal);
+                if (!isNaN(aFecha) && !isNaN(bFecha)) return asc ? aFecha - bFecha : bFecha - aFecha;
+                const aNum = parseFloat(aVal.replace(/\D/g, ""));
+                const bNum = parseFloat(bVal.replace(/\D/g, ""));
+                if (!isNaN(aNum) && !isNaN(bNum)) return asc ? aNum - bNum : bNum - aNum;
+                return asc ? aVal.localeCompare(bVal, "es") : bVal.localeCompare(aVal, "es");
             });
+            filas.forEach((f) => tbody.appendChild(f));
+            document.querySelectorAll("thead th").forEach((t) => { t.textContent = t.textContent.replace(/ [▲▼]$/, ""); });
+            th.textContent += asc ? " ▲" : " ▼";
+            asc = !asc;
         });
-    </script>
+    });
+</script>
 </html>

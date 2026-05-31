@@ -1,284 +1,138 @@
 <!doctype html>
 <html>
-    <head>
-        <title>Actividad — QR-GYM</title>
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
-        />
-        <style>
-            :root {
-                --white: #fdfcfbff;
-                --bright-snow: #fcf9f6ff;
-                --prussian-blue: #071f35ff;
-                --linen: #f7eee4ff;
-                --dusk-blue: #195083ff;
-                --dusk-blue-dark: #0f3a60;
-            }
-
-            * { box-sizing: border-box; }
-
-            body {
-                margin: 0;
-                background: var(--white);
-                font-family: sans-serif;
-            }
-
-            /* ── HEADER ── */
-            header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1rem 1.5rem;
-                background: var(--prussian-blue);
-                box-shadow: 0 2px 8px rgba(7, 31, 53, 0.15);
-            }
-            .header-brand {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-size: 20px;
-                font-weight: 500;
-                color: var(--white);
-            }
-            .header-brand i { font-size: 28px; color: var(--linen); }
-
-            /* ── BOTONES NAV ── */
-            .nav-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 7px;
-                padding: 8px 16px;
-                background: var(--dusk-blue);
-                color: var(--white);
-                text-decoration: none;
-                font-size: 14px;
-                white-space: nowrap;
-                border: none;
-                cursor: pointer;
-                border-radius: 6px;
-                transition: background 0.2s;
-            }
-            .nav-btn i { font-size: 16px; }
-            .nav-btn:hover { background: var(--dusk-blue-dark); }
-            .nav-btn.logout { background: #a32d2d; }
-            .nav-btn.logout:hover { background: #7a1f1f; }
-            .nav-btn.secondary { background: var(--prussian-blue); }
-            .nav-btn.secondary:hover { background: #040f1c; }
-
-            /* ── SUBHEADER ── */
-            .subheader {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1rem 1.5rem;
-                background: var(--bright-snow);
-                border-bottom: 1px solid var(--linen);
-            }
-            .subheader h2 {
-                margin: 0;
-                font-size: 22px;
-                font-weight: 500;
-                color: var(--prussian-blue);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            /* ── TABLA ── */
-            main { padding: 0 1.5rem 2rem; }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 14px;
-                margin-top: 1rem;
-            }
-            thead tr { background: var(--prussian-blue); }
-            thead th {
-                padding: 10px 14px;
-                text-align: left;
-                color: var(--linen);
-                font-weight: 500;
-                font-size: 13px;
-                white-space: nowrap;
-            }
-            tbody tr {
-                border-bottom: 1px solid var(--linen);
-                background: var(--white);
-            }
-            tbody tr:nth-child(even) { background: var(--bright-snow); }
-            tbody tr:hover { background: var(--linen); }
-            tbody td {
-                padding: 10px 14px;
-                color: var(--prussian-blue);
-                vertical-align: middle;
-            }
-
-            /* ── COLORES POR RESULTADO ── */
-            tr.log-exito   td { background: #e8f5e9 !important; }
-            tr.log-denegado td { background: #fde8e8 !important; }
-            tr.log-error   td { background: #fff3e0 !important; }
-
-            /* ── BADGES ── */
-            .badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 3px 10px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-                letter-spacing: 0.02em;
-                white-space: nowrap;
-            }
-            .badge-exito    { background: #2e7d32; color: #fff; }
-            .badge-denegado { background: #a32d2d; color: #fff; }
-            .badge-error    { background: #b45309; color: #fff; }
-            .badge-acceso   { background: #5b21b6; color: #fff; }
-            .badge-sistema  { background: var(--dusk-blue); color: #fff; }
-
-            /* ── EMPTY STATE ── */
-            .empty-state {
-                text-align: center;
-                padding: 3rem 1rem;
-                color: #999;
-            }
-            .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; }
-
-            /* ── CONTADOR ── */
-            .count-chip {
-                display: inline-block;
-                padding: 2px 10px;
-                border-radius: 20px;
-                background: var(--linen);
-                color: var(--prussian-blue);
-                font-size: 13px;
-                font-weight: 500;
-                margin-left: 8px;
-            }
-
-            /* ── AUTO-REFRESH INDICATOR ── */
-            .refresh-indicator {
-                font-size: 12px;
-                color: #999;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-            .refresh-indicator i { font-size: 14px; }
-        </style>
-    </head>
-    <body>
-
-        <!-- HEADER -->
-        <header>
-            <span class="header-brand">
-                <i class="ti ti-qrcode"></i>QR-GYM
-            </span>
-            <div style="display:flex; gap:8px; align-items:center;">
-                <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn">
-                    <i class="ti ti-users"></i>Clientes
-                </a>
-                <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn">
-                    <i class="ti ti-calendar-event"></i>Vencimientos
-                </a>
-                <a href="{{ url_for('mostrar_vencidos') }}" class="nav-btn">
-                    <i class="ti ti-calendar-x"></i>Vencidos
-                </a>
-                <a href="{{ url_for('logout') }}" class="nav-btn logout">
-                    <i class="ti ti-logout"></i>Salir
-                </a>
-            </div>
-        </header>
-
-        <!-- SUBHEADER -->
-        <div class="subheader">
-            <h2>
-                <i class="ti ti-history"></i>
-                Actividad del sistema
-                <span class="count-chip">{{ logs|length }} eventos</span>
-            </h2>
-            <div style="display:flex; gap:12px; align-items:center;">
-                <span class="refresh-indicator">
-                    <i class="ti ti-refresh"></i>
-                    Auto-refresh: 30 s
-                </span>
-                <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn secondary">
-                    <i class="ti ti-refresh"></i>Refrescar ahora
-                </a>
-            </div>
+<head>
+    <title>Actividad — QR-GYM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+    <style>
+        :root {
+            --white: #fdfcfbff;
+            --bright-snow: #fcf9f6ff;
+            --prussian-blue: #071f35ff;
+            --linen: #f7eee4ff;
+            --dusk-blue: #195083ff;
+            --dusk-blue-dark: #0f3a60;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--linen); font-family: sans-serif; }
+        .nav-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 16px; background: var(--dusk-blue); color: var(--white);
+            text-decoration: none; font-size: 14px; white-space: nowrap;
+            border: none; cursor: pointer; border-radius: 6px; transition: background 0.2s;
+        }
+        .nav-btn i { font-size: 16px; }
+        .nav-btn:hover { background: var(--dusk-blue-dark); }
+        .nav-btn.logout { background: #a32d2d; }
+        .nav-btn.logout:hover { background: #7a1f1f; }
+        .nav-btn.secondary { background: var(--prussian-blue); }
+        .nav-btn.secondary:hover { background: #040f1c; }
+        main { padding: 0.75rem 1.5rem 2rem; }
+        .subheader {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; background: var(--bright-snow);
+            border-bottom: 1px solid var(--linen);
+        }
+        .subheader h2 { margin: 0; font-size: 22px; font-weight: 500; color: var(--prussian-blue); display: flex; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--white); }
+        thead tr { background: var(--prussian-blue); }
+        thead th { padding: 10px 14px; text-align: left; color: var(--linen); font-weight: 500; font-size: 13px; white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--linen); background: var(--white); }
+        tbody tr:nth-child(even) { background: var(--bright-snow); }
+        tbody tr:hover { background: var(--linen); }
+        tbody td { padding: 10px 14px; color: var(--prussian-blue); vertical-align: middle; }
+        tr.log-exito td { background: #e8f5e9 !important; }
+        tr.log-denegado td { background: #fde8e8 !important; }
+        tr.log-error td { background: #fff3e0 !important; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px; font-size: 12px;
+            font-weight: 600; white-space: nowrap;
+        }
+        .badge-exito    { background: #2e7d32; color: #fff; }
+        .badge-denegado { background: #a32d2d; color: #fff; }
+        .badge-error    { background: #b45309; color: #fff; }
+        .badge-acceso   { background: #5b21b6; color: #fff; }
+        .badge-sistema  { background: var(--dusk-blue); color: #fff; }
+        .count-chip {
+            display: inline-block; padding: 2px 10px; border-radius: 20px;
+            background: var(--linen); color: var(--prussian-blue);
+            font-size: 13px; font-weight: 500; margin-left: 8px;
+        }
+        .refresh-indicator { font-size: 12px; color: #999; display: flex; align-items: center; gap: 5px; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: #999; }
+        .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <header style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background:var(--prussian-blue); box-shadow:0 2px 8px rgba(7,31,53,0.15);">
+        <span style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white);">
+            <i class="ti ti-qrcode" style="font-size:28px; color:var(--linen);"></i>QR-GYM
+        </span>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn"><i class="ti ti-users"></i>Clientes</a>
+            <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn"><i class="ti ti-history"></i>Actividad</a>
+            <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn"><i class="ti ti-calendar-event"></i>Vencimientos</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout"><i class="ti ti-logout"></i>Salir</a>
         </div>
+    </header>
 
-        <!-- TABLA -->
-        <main>
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Fecha / Hora</th>
-                        <th>Tipo</th>
-                        <th>Descripción</th>
-                        <th>Resultado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for log in logs %}
-                    <tr class="
-                        {% if log.resultado == 'EXITO' %}log-exito
-                        {% elif log.resultado == 'DENEGADO' %}log-denegado
-                        {% elif log.resultado == 'ERROR' %}log-error
-                        {% endif %}
-                    ">
-                        <td style="color:#999; font-size:12px;">{{ log.id }}</td>
-                        <td style="white-space:nowrap; font-variant-numeric: tabular-nums;">
-                            {{ log.fecha }}
-                        </td>
-                        <td>
-                            <span class="badge
-                                {% if log.tipo == 'ACCESO' %}badge-acceso
-                                {% else %}badge-sistema{% endif %}">
-                                <i class="ti
-                                    {% if log.tipo == 'ACCESO' %}ti-qrcode
-                                    {% else %}ti-settings{% endif %}"
-                                    style="font-size:11px;"></i>
-                                {{ log.tipo }}
-                            </span>
-                        </td>
-                        <td>{{ log.descripcion }}</td>
-                        <td>
-                            <span class="badge
-                                {% if log.resultado == 'EXITO' %}badge-exito
-                                {% elif log.resultado == 'DENEGADO' %}badge-denegado
-                                {% else %}badge-error{% endif %}">
-                                <i class="ti
-                                    {% if log.resultado == 'EXITO' %}ti-check
-                                    {% elif log.resultado == 'DENEGADO' %}ti-ban
-                                    {% else %}ti-alert-triangle{% endif %}"
-                                    style="font-size:11px;"></i>
-                                {{ log.resultado }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5">
-                            <div class="empty-state">
-                                <i class="ti ti-history-off"></i>
-                                No hay eventos registrados aún.
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </main>
+    <div class="subheader">
+        <h2>
+            <i class="ti ti-history"></i>Actividad del sistema
+            <span class="count-chip">{{ logs|length }} eventos</span>
+        </h2>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <span class="refresh-indicator"><i class="ti ti-refresh"></i>Auto-refresh: 30s</span>
+            <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn secondary"><i class="ti ti-refresh"></i>Refrescar</a>
+        </div>
+    </div>
 
-        <script>
-            // Auto-refresh cada 30 segundos
-            setTimeout(function () {
-                location.reload();
-            }, 30000);
-        </script>
-    </body>
+    <main>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Fecha / Hora</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Resultado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr class="{% if log.resultado == 'EXITO' %}log-exito{% elif log.resultado == 'DENEGADO' %}log-denegado{% elif log.resultado == 'ERROR' %}log-error{% endif %}">
+                    <td style="color:#999; font-size:12px;">{{ log.id }}</td>
+                    <td style="white-space:nowrap; font-variant-numeric:tabular-nums;">{{ log.fecha }}</td>
+                    <td>
+                        <span class="badge {% if log.tipo == 'ACCESO' %}badge-acceso{% else %}badge-sistema{% endif %}">
+                            <i class="ti {% if log.tipo == 'ACCESO' %}ti-qrcode{% else %}ti-settings{% endif %}" style="font-size:11px;"></i>
+                            {{ log.tipo }}
+                        </span>
+                    </td>
+                    <td>{{ log.descripcion }}</td>
+                    <td>
+                        <span class="badge {% if log.resultado == 'EXITO' %}badge-exito{% elif log.resultado == 'DENEGADO' %}badge-denegado{% else %}badge-error{% endif %}">
+                            <i class="ti {% if log.resultado == 'EXITO' %}ti-check{% elif log.resultado == 'DENEGADO' %}ti-ban{% else %}ti-alert-triangle{% endif %}" style="font-size:11px;"></i>
+                            {{ log.resultado }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="ti ti-history-off"></i>
+                            No hay eventos registrados aún.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        setTimeout(function() { location.reload(); }, 30000);
+    </script>
+</body>
 </html>

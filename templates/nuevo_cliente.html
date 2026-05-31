@@ -1,35 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-    <title>Nuevo Cliente</title>
+    <title>Nuevo Cliente — QR-GYM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
     <style>
-        .form-group { margin-bottom: 15px; }
-        label { display: inline-block; width: 150px; }
-        input { padding: 5px; width: 300px; }
-        .btn { padding: 8px 15px; margin: 5px; }
+        :root {
+            --white: #fdfcfbff;
+            --bright-snow: #fcf9f6ff;
+            --prussian-blue: #071f35ff;
+            --linen: #f7eee4ff;
+            --dusk-blue: #195083ff;
+            --dusk-blue-dark: #0f3a60;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--linen); font-family: sans-serif; }
+        .nav-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 16px; background: var(--dusk-blue); color: var(--white);
+            text-decoration: none; font-size: 14px; white-space: nowrap;
+            border: none; cursor: pointer; border-radius: 6px; transition: background 0.2s;
+        }
+        .nav-btn i { font-size: 16px; }
+        .nav-btn:hover { background: var(--dusk-blue-dark); }
+        .nav-btn.logout { background: #a32d2d; }
+        .nav-btn.logout:hover { background: #7a1f1f; }
+        .form-card {
+            background: var(--white);
+            max-width: 520px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        .form-card h2 {
+            margin: 0 0 1.5rem;
+            font-size: 20px;
+            color: var(--prussian-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group { margin-bottom: 1.25rem; }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--prussian-blue);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: sans-serif;
+            transition: all 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--dusk-blue);
+            box-shadow: 0 0 0 3px rgba(25,80,131,0.1);
+            background: var(--bright-snow);
+        }
+        .form-actions { display: flex; gap: 8px; margin-top: 1.5rem; }
+        .btn-submit {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 20px; background: var(--dusk-blue); color: var(--white);
+            border: none; border-radius: 6px; font-size: 14px; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background: var(--dusk-blue-dark); }
+        .btn-cancel {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 20px; background: transparent; color: var(--prussian-blue);
+            border: 1px solid #ccc; border-radius: 6px; font-size: 14px;
+            text-decoration: none; transition: background 0.2s;
+        }
+        .btn-cancel:hover { background: var(--linen); }
     </style>
 </head>
 <body>
-    <h1>Nuevo Cliente</h1>
-    
-    <form method="POST">
-        <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" required>
+    <header style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background:var(--prussian-blue); box-shadow:0 2px 8px rgba(7,31,53,0.15);">
+        <span style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white);">
+            <i class="ti ti-qrcode" style="font-size:28px; color:var(--linen);"></i>QR-GYM
+        </span>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn"><i class="ti ti-users"></i>Clientes</a>
+            <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn"><i class="ti ti-history"></i>Actividad</a>
+            <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn"><i class="ti ti-calendar-event"></i>Vencimientos</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout"><i class="ti ti-logout"></i>Salir</a>
         </div>
-        
-        <div class="form-group">
-            <label for="telefono">Teléfono:</label>
-            <input type="text" id="telefono" name="telefono">
-        </div>
-        
-        <div class="form-group">
-            <label for="vencimiento">Vencimiento:</label>
-            <input type="date" id="vencimiento" name="vencimiento">
-        </div>
-        
-        <button type="submit" class="btn">Crear Cliente</button>
-        <a href="{{ url_for('listar_clientes_html') }}" class="btn">Cancelar</a>
-    </form>
+    </header>
+
+    <div class="form-card">
+        <h2><i class="ti ti-user-plus" style="color:var(--dusk-blue);"></i>Nuevo cliente</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="nombre"><i class="ti ti-user"></i> Nombre</label>
+                <input type="text" id="nombre" name="nombre" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="apellido"><i class="ti ti-user"></i> Apellido</label>
+                <input type="text" id="apellido" name="apellido">
+            </div>
+            <div class="form-group">
+                <label for="telefono"><i class="ti ti-phone"></i> Teléfono</label>
+                <input type="text" id="telefono" name="telefono">
+            </div>
+            <div class="form-group">
+                <label for="vencimiento"><i class="ti ti-calendar"></i> Vencimiento</label>
+                <input type="date" id="vencimiento" name="vencimiento">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit"><i class="ti ti-user-plus"></i>Crear cliente</button>
+                <a href="{{ url_for('listar_clientes_html') }}" class="btn-cancel"><i class="ti ti-x"></i>Cancelar</a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

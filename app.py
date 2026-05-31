@@ -24,10 +24,9 @@ from database import (
     get_all_clientes,
     get_cliente_por_id,
     init_db,
-    obtener_clientes_vencidos,
+    obtener_historial,
     obtener_vencimientos_proximos,
     registrar_evento,
-    obtener_historial,
 )
 
 # ========== CONFIGURACIÓN DE LOGIN ==========
@@ -138,15 +137,11 @@ def listar_clientes_html():
     proximos_vencimientos = obtener_vencimientos_proximos(7)
     ids_proximos = [c["id"] for c in proximos_vencimientos]
 
-    # Obtener clientes vencidos
-    vencidos = obtener_clientes_vencidos()
-    ids_vencidos = [c["id"] for c in vencidos]
-
     return render_template(
         "clientes.html",
         clientes=clientes_lista,
         ids_proximos=ids_proximos,
-        ids_vencidos=ids_vencidos,
+        ids_vencidos=[],
     )
 
 
@@ -167,6 +162,7 @@ def editar_cliente(cliente_id):
     elif request.method == "POST":
         # Procesar formulario de edición
         nombre = request.form.get("nombre")
+        apellido = request.form.get("apellido")
         telefono = request.form.get("telefono")
         vencimiento = request.form.get("vencimiento")
 
@@ -179,6 +175,7 @@ def editar_cliente(cliente_id):
         actualizar_cliente(
             cliente_id=cliente_id,
             nombre=nombre,
+            apellido=apellido,
             telefono=telefono,
             vencimiento=vencimiento if vencimiento else None,
         )
@@ -206,6 +203,7 @@ def nuevo_cliente():
     elif request.method == "POST":
         # Procesar formulario de creación
         nombre = request.form.get("nombre")
+        apellido = request.form.get("apellido")
         telefono = request.form.get("telefono")
         vencimiento = request.form.get("vencimiento")
 
@@ -217,6 +215,7 @@ def nuevo_cliente():
         # Crear en la base de datos
         nuevo_id = crear_cliente(
             nombre=nombre,
+            apellido=apellido,
             telefono=telefono,
             vencimiento=vencimiento if vencimiento else None,
         )
@@ -313,22 +312,6 @@ def exportar_csv():
     response.headers["Content-Disposition"] = "attachment; filename=clientes.csv"
     response.headers["Content-Type"] = "text/csv; charset=utf-8"
     return response
-
-
-@app.route("/vencidos")
-@requiere_login
-def mostrar_vencidos():
-    """Muestra solo los clientes vencidos"""
-    vencidos = obtener_clientes_vencidos()
-
-    hoy = datetime.now().date()
-    for cliente in vencidos:
-        if cliente["vencimiento"]:
-            fecha_venc = datetime.strptime(cliente["vencimiento"], "%Y-%m-%d").date()
-            dias_pasados = (hoy - fecha_venc).days
-            cliente["dias_pasados"] = dias_pasados
-
-    return render_template("vencidos.html", clientes=vencidos)
 
 
 @app.route("/actividad")

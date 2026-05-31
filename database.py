@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 DB_NAME = "gym.db"
 
+
 @contextmanager
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -14,12 +15,14 @@ def get_db_connection():
     finally:
         conn.close()
 
+
 def init_db():
     with get_db_connection() as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS clientes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nombre TEXT NOT NULL,
+                apellido TEXT,
                 telefono TEXT,
                 vencimiento TEXT
             )
@@ -36,16 +39,17 @@ def init_db():
             )
         """)
 
+
 def registrar_evento(tipo, descripcion, resultado, cliente_id=None, usuario_admin=None):
     """Registra un evento en la tabla logs. Transacción atómica e independiente."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        fecha = datetime.now().isoformat(sep=' ', timespec='seconds')
+        fecha = datetime.now().isoformat(sep=" ", timespec="seconds")
         cursor.execute(
             """INSERT INTO logs
                (fecha, tipo, descripcion, resultado, cliente_id, usuario_admin)
                VALUES (?, ?, ?, ?, ?, ?)""",
-            (fecha, tipo, descripcion, resultado, cliente_id, usuario_admin)
+            (fecha, tipo, descripcion, resultado, cliente_id, usuario_admin),
         )
         return cursor.lastrowid
 
@@ -54,25 +58,24 @@ def obtener_historial(limite=100):
     """Devuelve los últimos N eventos ordenados por fecha descendente."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT * FROM logs ORDER BY fecha DESC LIMIT ?",
-            (limite,)
-        )
+        cursor.execute("SELECT * FROM logs ORDER BY fecha DESC LIMIT ?", (limite,))
         return [dict(row) for row in cursor.fetchall()]
 
 
 def get_all_clientes():
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clientes')
+        cursor.execute("SELECT * FROM clientes")
         return cursor.fetchall()
+
 
 def get_cliente_por_id(cliente_id):
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clientes WHERE id = ?', (cliente_id,))
+        cursor.execute("SELECT * FROM clientes WHERE id = ?", (cliente_id,))
         cliente = cursor.fetchone()
         return dict(cliente) if cliente else None
+
 
 def cliente_tiene_acceso(cliente_id):
     """
@@ -81,51 +84,60 @@ def cliente_tiene_acceso(cliente_id):
     """
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT id FROM clientes
             WHERE id = ?
             AND (vencimiento IS NULL OR vencimiento >= date('now'))
-        """, (cliente_id,))
+        """,
+            (cliente_id,),
+        )
         return cursor.fetchone() is not None
 
-def crear_cliente(nombre, telefono=None, vencimiento=None):
+
+def crear_cliente(nombre, apellido=None, telefono=None, vencimiento=None):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO clientes (nombre, telefono, vencimiento) VALUES (?, ?, ?)',
-            (nombre, telefono, vencimiento)
+            "INSERT INTO clientes (nombre, apellido, telefono, vencimiento) VALUES (?, ?, ?, ?)",
+            (nombre, apellido, telefono, vencimiento),
         )
         return cursor.lastrowid
 
-def actualizar_cliente(cliente_id, nombre=None, telefono=None, vencimiento=None):
+
+def actualizar_cliente(
+    cliente_id, nombre=None, apellido=None, telefono=None, vencimiento=None
+):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         campos, valores = [], []
-
         if nombre is not None:
             campos.append("nombre = ?")
             valores.append(nombre)
+        if apellido is not None:
+            campos.append("apellido = ?")
+            valores.append(apellido)
         if telefono is not None:
             campos.append("telefono = ?")
             valores.append(telefono)
         if vencimiento is not None:
             campos.append("vencimiento = ?")
             valores.append(vencimiento)
-
         if campos:
             valores.append(cliente_id)
             cursor.execute(
-                f"UPDATE clientes SET {', '.join(campos)} WHERE id = ?",
-                valores
+                f"UPDATE clientes SET {', '.join(campos)} WHERE id = ?", valores
             )
             return True
         return False
 
+
 def eliminar_cliente(cliente_id):
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('DELETE FROM clientes WHERE id = ?', (cliente_id,))
+        cursor.execute("DELETE FROM clientes WHERE id = ?", (cliente_id,))
         return cursor.rowcount > 0
+
 
 def obtener_vencimientos_proximos(dias=7):
     """Clientes cuyo vencimiento cae entre hoy y los próximos X días."""
@@ -133,23 +145,30 @@ def obtener_vencimientos_proximos(dias=7):
     hoy = datetime.now().date().isoformat()
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM clientes
             WHERE vencimiento IS NOT NULL
             AND vencimiento BETWEEN ? AND ?
             ORDER BY vencimiento ASC
-        """, (hoy, limite))
+        """,
+            (hoy, limite),
+        )
         return [dict(row) for row in cursor.fetchall()]
+
 
 def obtener_clientes_vencidos():
     """Clientes cuyo vencimiento ya pasó."""
     hoy = datetime.now().date().isoformat()
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM clientes
             WHERE vencimiento IS NOT NULL
             AND vencimiento < ?
             ORDER BY vencimiento DESC
-        """, (hoy,))
+        """,
+            (hoy,),
+        )
         return [dict(row) for row in cursor.fetchall()]

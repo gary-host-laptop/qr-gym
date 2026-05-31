@@ -1,60 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-    <title>Vencimientos Próximos</title>
+    <title>Vencimientos — QR-GYM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
+        :root {
+            --white: #fdfcfbff;
+            --bright-snow: #fcf9f6ff;
+            --prussian-blue: #071f35ff;
+            --linen: #f7eee4ff;
+            --dusk-blue: #195083ff;
+            --dusk-blue-dark: #0f3a60;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--linen); font-family: sans-serif; }
+        .nav-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 16px; background: var(--dusk-blue); color: var(--white);
+            text-decoration: none; font-size: 14px; white-space: nowrap;
+            border: none; cursor: pointer; border-radius: 6px; transition: background 0.2s;
         }
-        th {
-            background-color: #f2f2f2;
+        .nav-btn i { font-size: 16px; }
+        .nav-btn:hover { background: var(--dusk-blue-dark); }
+        .nav-btn.logout { background: #a32d2d; }
+        .nav-btn.logout:hover { background: #7a1f1f; }
+        main { padding: 0.75rem 1.5rem 2rem; }
+        .subheader {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; background: var(--bright-snow);
+            border-bottom: 1px solid var(--linen);
         }
-        .dias-pocos {
-            background-color: #ffcccc; /* rojo claro para pocos días */
-        }
-        .dias-muchos {
-            background-color: #ffffcc; /* amarillo claro para más días */
-        }
+        .subheader h2 { margin: 0; font-size: 22px; font-weight: 500; color: var(--prussian-blue); display: flex; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--white); }
+        thead tr { background: var(--prussian-blue); }
+        thead th { padding: 10px 14px; text-align: left; color: var(--linen); font-weight: 500; font-size: 13px; white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--linen); background: var(--white); }
+        tbody tr:nth-child(even) { background: var(--bright-snow); }
+        tbody tr:hover { background: var(--linen); }
+        tbody td { padding: 10px 14px; color: var(--prussian-blue); vertical-align: middle; }
+        .dias-pocos td { background: #fde8e8 !important; }
+        .dias-muchos td { background: #fef9e7 !important; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: #999; }
+        .empty-state i { font-size: 40px; display: block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h1>Clientes con vencimientos próximos (próximos 30 días)</h1>
-    
-    <a href="{{ url_for('listar_clientes_html') }}">⬅️ Volver a la lista completa</a>
-    
-    <br><br>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Vencimiento</th>
-                <th>Días restantes</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cliente in clientes %}
-            <tr class="{% if cliente.dias_restantes < 7 %}dias-pocos{% else %}dias-muchos{% endif %}">
-                <td>{{ cliente.id }}</td>
-                <td>{{ cliente.nombre }}</td>
-                <td>{{ cliente.telefono or '-' }}</td>
-                <td>{{ cliente.vencimiento }}</td>
-                <td>{{ cliente.dias_restantes }} días</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5">No hay clientes con vencimientos próximos.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <header style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background:var(--prussian-blue); box-shadow:0 2px 8px rgba(7,31,53,0.15);">
+        <span style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white);">
+            <i class="ti ti-qrcode" style="font-size:28px; color:var(--linen);"></i>QR-GYM
+        </span>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn"><i class="ti ti-users"></i>Clientes</a>
+            <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn"><i class="ti ti-history"></i>Actividad</a>
+            <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn"><i class="ti ti-calendar-event"></i>Vencimientos</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout"><i class="ti ti-logout"></i>Salir</a>
+        </div>
+    </header>
+
+    <div class="subheader">
+        <h2><i class="ti ti-calendar-event"></i>Vencimientos próximos <small style="font-size:14px; color:#666;">(30 días)</small></h2>
+    </div>
+
+    <main>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Vencimiento</th>
+                    <th>Días restantes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr class="{% if cliente.dias_restantes < 7 %}dias-pocos{% else %}dias-muchos{% endif %}">
+                    <td>{{ cliente.id }}</td>
+                    <td>{{ cliente.nombre }}</td>
+                    <td>{{ cliente.apellido or '-' }}</td>
+                    <td>{{ cliente.telefono or '-' }}</td>
+                    <td>{{ cliente.vencimiento }}</td>
+                    <td>{{ cliente.dias_restantes }} días</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="ti ti-calendar-off"></i>
+                            No hay vencimientos próximos.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
 </body>
 </html>
