@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+    <title>Inicio — QR-GYM</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+    <style>
+        :root {
+            --white: #fdfcfbff;
+            --bright-snow: #fcf9f6ff;
+            --prussian-blue: #071f35ff;
+            --linen: #f7eee4ff;
+            --dusk-blue: #195083ff;
+            --dusk-blue-dark: #0f3a60;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--linen); font-family: sans-serif; }
+        .nav-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 16px; background: var(--dusk-blue); color: var(--white);
+            text-decoration: none; font-size: 14px; white-space: nowrap;
+            border: none; cursor: pointer; border-radius: 6px; transition: background 0.2s;
+        }
+        .nav-btn i { font-size: 16px; }
+        .nav-btn:hover { background: var(--dusk-blue-dark); }
+        .nav-btn.active { background: var(--white); color: var(--prussian-blue); }
+        .nav-btn.active:hover { background: var(--linen); }
+        .nav-btn.logout { background: #a32d2d; }
+        .nav-btn.logout:hover { background: #7a1f1f; }
+
+        .hero {
+            background: var(--prussian-blue);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: var(--white);
+        }
+        .hero h1 { margin: 0 0 6px; font-size: 26px; font-weight: 500; }
+        .hero p { margin: 0; color: #8aabcc; font-size: 14px; }
+
+        main { padding: 1.5rem; }
+
+        .section-title {
+            font-size: 12px; font-weight: 500; color: #999;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            margin: 0 0 0.75rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-decoration: none;
+            border: 0.5px solid #e2d8ce;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .card:hover { border-color: var(--dusk-blue); box-shadow: 0 2px 8px rgba(25,80,131,0.1); }
+
+        .card-icon {
+            width: 44px; height: 44px; border-radius: 8px;
+            background: #e6f1fb;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card-icon i { font-size: 22px; color: var(--dusk-blue); }
+        .card-icon.green { background: #eaf3de; }
+        .card-icon.green i { color: #3b6d11; }
+        .card-icon.amber { background: #faeeda; }
+        .card-icon.amber i { color: #854f0b; }
+        .card-icon.purple { background: #eeedfe; }
+        .card-icon.purple i { color: #534ab7; }
+
+        .card h3 { margin: 0; font-size: 15px; font-weight: 500; color: var(--prussian-blue); }
+        .card p { margin: 0; font-size: 12px; color: #888; line-height: 1.5; }
+
+        .card-stat { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+        .card-stat .num { font-size: 24px; font-weight: 500; color: var(--prussian-blue); }
+        .card-stat .lbl { font-size: 12px; color: #aaa; }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.75rem;
+        }
+        .qs {
+            background: var(--white); border-radius: 8px; padding: 1rem;
+            border: 0.5px solid #e2d8ce; text-align: center;
+        }
+        .qs .qn { font-size: 28px; font-weight: 500; color: var(--prussian-blue); }
+        .qs .ql { font-size: 12px; color: #aaa; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <header style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background:var(--prussian-blue); box-shadow:0 2px 8px rgba(7,31,53,0.15);">
+        <a href="{{ url_for('inicio') }}" style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white); text-decoration:none;">
+            <i class="ti ti-qrcode" style="font-size:28px; color:var(--linen);"></i>QR-GYM
+        </a>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <a href="{{ url_for('inicio') }}" class="nav-btn active"><i class="ti ti-home"></i>Inicio</a>
+            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn"><i class="ti ti-users"></i>Clientes</a>
+            <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn"><i class="ti ti-history"></i>Actividad</a>
+            <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn"><i class="ti ti-calendar-event"></i>Vencimientos</a>
+            <a href="{{ url_for('mostrar_estadisticas') }}" class="nav-btn"><i class="ti ti-chart-bar"></i>Estadísticas</a>
+            <a href="{{ url_for('logout') }}" class="nav-btn logout"><i class="ti ti-logout"></i>Salir</a>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>Bienvenido, admin</h1>
+        <p>{{ fecha_hoy }}</p>
+    </div>
+
+    <main>
+        <p class="section-title">Acceso rápido</p>
+        <div class="cards-grid">
+            <a href="{{ url_for('listar_clientes_html') }}" class="card">
+                <div class="card-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+                <div>
+                    <h3>Clientes</h3>
+                    <p>Gestión de socios, editar datos y descargar QR</p>
+                </div>
+                <div class="card-stat">
+                    <span class="num">{{ datos.total_clientes }}</span>
+                    <span class="lbl">socios registrados</span>
+                </div>
+            </a>
+            <a href="{{ url_for('mostrar_actividad') }}" class="card">
+                <div class="card-icon green"><i class="ti ti-history" aria-hidden="true"></i></div>
+                <div>
+                    <h3>Actividad</h3>
+                    <p>Registro de accesos y eventos del sistema</p>
+                </div>
+                <div class="card-stat">
+                    <span class="num" style="color:#3b6d11;">{{ datos.accesos_hoy }}</span>
+                    <span class="lbl">accesos hoy</span>
+                </div>
+            </a>
+            <a href="{{ url_for('mostrar_vencimientos') }}" class="card">
+                <div class="card-icon amber"><i class="ti ti-calendar-event" aria-hidden="true"></i></div>
+                <div>
+                    <h3>Vencimientos</h3>
+                    <p>Membresías próximas a expirar en 30 días</p>
+                </div>
+                <div class="card-stat">
+                    <span class="num" style="color:#854f0b;">{{ datos.vencimientos_proximos }}</span>
+                    <span class="lbl">vencen pronto</span>
+                </div>
+            </a>
+            <a href="{{ url_for('mostrar_estadisticas') }}" class="card">
+                <div class="card-icon purple"><i class="ti ti-chart-bar" aria-hidden="true"></i></div>
+                <div>
+                    <h3>Estadísticas</h3>
+                    <p>Gráficos de uso, clientes frecuentes y tendencias</p>
+                </div>
+                <div class="card-stat">
+                    <span class="num" style="color:#534ab7;"><i class="ti ti-arrow-up-right" style="font-size:20px;"></i></span>
+                    <span class="lbl">ver reportes</span>
+                </div>
+            </a>
+        </div>
+
+        <p class="section-title">Resumen del día</p>
+        <div class="quick-stats">
+            <div class="qs">
+                <div class="qn">{{ datos.accesos_hoy }}</div>
+                <div class="ql">Accesos exitosos hoy</div>
+            </div>
+            <div class="qs">
+                <div class="qn" style="color:#a32d2d;">{{ datos.denegados_hoy }}</div>
+                <div class="ql">Accesos denegados hoy</div>
+            </div>
+            <div class="qs">
+                <div class="qn" style="color:#854f0b;">{{ datos.clientes_vencidos }}</div>
+                <div class="ql">Membresías vencidas</div>
+            </div>
+            <div class="qs">
+                <div class="qn">{{ datos.total_clientes }}</div>
+                <div class="ql">Socios totales</div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

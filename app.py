@@ -24,6 +24,8 @@ from database import (
     get_all_clientes,
     get_cliente_por_id,
     init_db,
+    obtener_datos_inicio,
+    obtener_estadisticas,
     obtener_historial,
     obtener_vencimientos_proximos,
     registrar_evento,
@@ -96,7 +98,7 @@ def login():
                 usuario_admin=usuario,
             )
             flash("¡Bienvenido!", "success")
-            return redirect(url_for("listar_clientes_html"))
+            return redirect(url_for("inicio"))
         else:
             registrar_evento(
                 tipo="SISTEMA",
@@ -320,6 +322,44 @@ def mostrar_actividad():
     """Muestra el historial de eventos del sistema"""
     logs = obtener_historial(limite=200)
     return render_template("actividad.html", logs=logs)
+
+
+@app.route("/estadisticas")
+@requiere_login
+def mostrar_estadisticas():
+    """Página de estadísticas con gráficos."""
+    data = obtener_estadisticas()
+    return render_template("estadisticas.html", **data)
+
+
+@app.route("/inicio")
+@requiere_login
+def inicio():
+    """Página de inicio / dashboard"""
+    from datetime import datetime
+
+    datos = obtener_datos_inicio()
+    meses_es = [
+        "",
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre",
+    ]
+    hoy = datetime.now()
+    dias_es = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+    fecha_hoy = (
+        f"{dias_es[hoy.weekday()]} {hoy.day} de {meses_es[hoy.month]} de {hoy.year}"
+    )
+    return render_template("inicio.html", datos=datos, fecha_hoy=fecha_hoy)
 
 
 if __name__ == "__main__":

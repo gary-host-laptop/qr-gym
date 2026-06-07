@@ -23,7 +23,10 @@
         .nav-btn i { font-size: 16px; }
         .nav-btn:hover { background: var(--dusk-blue-dark); }
         .nav-btn.logout { background: #a32d2d; }
+        .nav-btn.logout { background: #a32d2d; }
         .nav-btn.logout:hover { background: #7a1f1f; }
+        .nav-btn.active { background: var(--white); color: var(--prussian-blue); }
+        .nav-btn.active:hover { background: var(--linen); color: var(--prussian-blue); }
         .form-card {
             background: var(--white);
             max-width: 520px;
@@ -80,13 +83,15 @@
 </head>
 <body>
     <header style="display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background:var(--prussian-blue); box-shadow:0 2px 8px rgba(7,31,53,0.15);">
-        <span style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white);">
+        <a href="{{ url_for('inicio') }}" style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:500; color:var(--white); text-decoration:none;">
             <i class="ti ti-qrcode" style="font-size:28px; color:var(--linen);"></i>QR-GYM
-        </span>
+        </a>
         <div style="display:flex; gap:8px; align-items:center;">
-            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn"><i class="ti ti-users"></i>Clientes</a>
+            <a href="{{ url_for('inicio') }}" class="nav-btn"><i class="ti ti-home"></i>Inicio</a>
+            <a href="{{ url_for('listar_clientes_html') }}" class="nav-btn active"><i class="ti ti-users"></i>Clientes</a>
             <a href="{{ url_for('mostrar_actividad') }}" class="nav-btn"><i class="ti ti-history"></i>Actividad</a>
             <a href="{{ url_for('mostrar_vencimientos') }}" class="nav-btn"><i class="ti ti-calendar-event"></i>Vencimientos</a>
+            <a href="{{ url_for('mostrar_estadisticas') }}" class="nav-btn"><i class="ti ti-chart-bar"></i>Estadísticas</a>
             <a href="{{ url_for('logout') }}" class="nav-btn logout"><i class="ti ti-logout"></i>Salir</a>
         </div>
     </header>

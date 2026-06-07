@@ -1,238 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>Iniciar Sesión - QR-GYM</title>
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
-    />
-    <style>
-        :root {
-            --white: #fdfcfbff;
-            --bright-snow: #fcf9f6ff;
-            --prussian-blue: #071f35ff;
-            --linen: #f7eee4ff;
-            --dusk-blue: #195083ff;
-            --dusk-blue-dark: #0f3a60;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--dusk-blue) 100%);
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .login-container {
-            background: var(--white);
-            padding: 50px;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(7, 31, 53, 0.4);
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .login-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 40px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-        
-        .logo i {
-            font-size: 40px;
-            color: var(--dusk-blue);
-        }
-        
-        .logo h1 {
-            font-size: 28px;
-            font-weight: 600;
-            color: var(--prussian-blue);
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            color: #999;
-            margin-top: 5px;
-        }
-        
-        .messages {
-            margin-bottom: 20px;
-        }
-        
-        .message {
-            padding: 12px 14px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .error {
-            background: #fde8e8;
-            color: #a32d2d;
-            border-left: 4px solid #a32d2d;
-        }
-        
-        .success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-left: 4px solid #2e7d32;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--prussian-blue);
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: sans-serif;
-            transition: all 0.3s ease;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: var(--dusk-blue);
-            box-shadow: 0 0 0 3px rgba(25, 80, 131, 0.1);
-            background: var(--bright-snow);
-        }
-        
-        .form-actions {
-            margin-top: 30px;
-        }
-        
-        button {
-            width: 100%;
-            padding: 12px;
-            background: var(--dusk-blue);
-            color: var(--white);
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        button:hover {
-            background: var(--dusk-blue-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(25, 80, 131, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        button i {
-            font-size: 16px;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: #999;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="logo">
-                <i class="ti ti-qrcode"></i>
-                <h1>QR-GYM</h1>
-            </div>
-            <p class="subtitle">Sistema de Gestión de Clientes</p>
-        </div>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="messages">
-                    {% for category, message in messages %}
-                        <div class="message {{ category }}">
-                            {% if category == 'error' %}
-                                <i class="ti ti-alert-circle"></i>
-                            {% else %}
-                                <i class="ti ti-check"></i>
-                            {% endif %}
-                            {{ message }}
-                        </div>
-                    {% endfor %}
+    <head>
+        <title>Iniciar Sesión - QR-GYM</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+        />
+        <style>
+            :root {
+                --white: #fdfcfbff;
+                --bright-snow: #fcf9f6ff;
+                --prussian-blue: #071f35ff;
+                --linen: #f7eee4ff;
+                --dusk-blue: #195083ff;
+                --dusk-blue-dark: #0f3a60;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background: linear-gradient(
+                    135deg,
+                    var(--prussian-blue) 0%,
+                    var(--dusk-blue) 100%
+                );
+                font-family: sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .login-container {
+                background: var(--white);
+                padding: 50px;
+                border-radius: 12px;
+                box-shadow: 0 20px 60px rgba(7, 31, 53, 0.4);
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .login-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 40px;
+            }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 10px;
+            }
+
+            .logo i {
+                font-size: 40px;
+                color: var(--dusk-blue);
+            }
+
+            .logo h1 {
+                font-size: 28px;
+                font-weight: 600;
+                color: var(--prussian-blue);
+            }
+
+            .subtitle {
+                font-size: 14px;
+                color: #999;
+                margin-top: 5px;
+            }
+
+            .messages {
+                margin-bottom: 20px;
+            }
+
+            .message {
+                padding: 12px 14px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                font-size: 14px;
+            }
+
+            .error {
+                background: #fde8e8;
+                color: #a32d2d;
+                border-left: 4px solid #a32d2d;
+            }
+
+            .success {
+                background: #e8f5e9;
+                color: #2e7d32;
+                border-left: 4px solid #2e7d32;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 8px;
+                color: var(--prussian-blue);
+                font-weight: 500;
+                font-size: 14px;
+            }
+
+            input {
+                width: 100%;
+                padding: 12px 14px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: sans-serif;
+                transition: all 0.3s ease;
+            }
+
+            input:focus {
+                outline: none;
+                border-color: var(--dusk-blue);
+                box-shadow: 0 0 0 3px rgba(25, 80, 131, 0.1);
+                background: var(--bright-snow);
+            }
+
+            .form-actions {
+                margin-top: 30px;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+                background: var(--dusk-blue);
+                color: var(--white);
+                border: none;
+                border-radius: 6px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            button:hover {
+                background: var(--dusk-blue-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(25, 80, 131, 0.3);
+            }
+
+            button:active {
+                transform: translateY(0);
+            }
+
+            button i {
+                font-size: 16px;
+            }
+
+            .footer {
+                text-align: center;
+                margin-top: 30px;
+                font-size: 12px;
+                color: #999;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="ti ti-qrcode"></i>
+                    <h1>QR-GYM</h1>
                 </div>
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST">
-            <div class="form-group">
-                <label for="usuario">
-                    <i class="ti ti-user"></i> Usuario
-                </label>
-                <input 
-                    type="text" 
-                    id="usuario" 
-                    name="usuario" 
-                    placeholder="admin"
-                    required 
-                    autofocus
-                >
+                <p class="subtitle">Sistema de Gestión de Clientes</p>
             </div>
-            
-            <div class="form-group">
-                <label for="contraseña">
-                    <i class="ti ti-lock"></i> Contraseña
-                </label>
-                <input 
-                    type="password" 
-                    id="contraseña" 
-                    name="contraseña" 
-                    placeholder="••••••••"
-                    required
-                >
+
+            {% with messages = get_flashed_messages(with_categories=true) %} {%
+            if messages %}
+            <div class="messages">
+                {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {% if category == 'error' %}
+                    <i class="ti ti-alert-circle"></i>
+                    {% else %}
+                    <i class="ti ti-check"></i>
+                    {% endif %} {{ message }}
+                </div>
+                {% endfor %}
             </div>
-            
-            <div class="form-actions">
-                <button type="submit">
-                    <i class="ti ti-login"></i>
-                    Iniciar Sesión
-                </button>
+            {% endif %} {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="usuario">
+                        <i class="ti ti-user"></i> Usuario
+                    </label>
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="admin"
+                        required
+                        autofocus
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="contraseña">
+                        <i class="ti ti-lock"></i> Contraseña
+                    </label>
+                    <input
+                        type="password"
+                        id="contraseña"
+                        name="contraseña"
+                        placeholder="••••••••"
+                        required
+                    />
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit">
+                        <i class="ti ti-login"></i>
+                        Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+
+            <div class="footer">
+                <p>Credenciales de prueba: admin / 1234</p>
             </div>
-        </form>
-        
-        <div class="footer">
-            <p>Credenciales de prueba: admin / 1234</p>
         </div>
-    </div>
-</body>
+    </body>
 </html>
